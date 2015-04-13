@@ -38,9 +38,9 @@ B = rref(A)
 
 % Solving this we get:
 
-%  |  8   9  -2 |
-%  | -5   5  15 |
-%  | 12   1   2 |
+C=  [  8   9  -2 ;
+      -5   5  15 ;
+      12   1   2 ]
 
 % This meets all the constraints. 
 

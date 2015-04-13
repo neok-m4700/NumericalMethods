@@ -1,4 +1,7 @@
 #This program needs the numpy python package
+#Execute: python rref.py
+
+
 import numpy as np
 from pprint import pprint as pp
 
@@ -46,6 +49,7 @@ def backsub(mat):
 
 
 def main():
+    # Solved for a sample matrix
     A = np.matrix( """[1 1 0 0 0 0 -1 -8;
                        0 0 1 1 0 0 -1 -5;
                        0 0 0 0 1 1 -1 -1;

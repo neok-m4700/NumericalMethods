@@ -1,21 +1,22 @@
 function _  = matmult
-   printf("Size        t1          t2\n");
-   for i = 100:10:200
-      [t1 t2] = time_it(i);
-      printf("%4.0d %0.5g %0.5g\n", i, t1, t2);
+   for i = 20:20:200
+      [t1 t2 t3] = time_it(i);
+      printf("%4.0d %0.5g %0.5g %0.5g\n", i, t1, t2, t3);
       fflush(stdout);
    end
 end
 
-function [t1 t2] = time_it(n)
+function [tloop tbuiltin tnative] = time_it(n)
    m1 = generate_matrix(1,n);
    m2 = generate_matrix(2,n);
-   tic();
+   tic;
    mult1 = mult_mat_loop(m1,m2);
-   t1 = toc();
-   tic ();
+   tloop = toc;
+   tic;
    mult2 = m1*m2;
-   t2 = toc;
+   tbuiltin = toc;
+   [status,cmdout] = system(["./matmult.o " num2str(n)]);
+   tnative = str2num(cmdout);
 end
 
 function m = generate_matrix(i,n)

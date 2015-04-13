@@ -37,7 +37,7 @@ double **matmult(double **m1, double **m2, int n){
    int i,j,k;
    double **m = matrix_new(n);
    for(i = 0; i < n; ++i){
-      for(j = 0; i < n; ++i){
+      for(j = 0; j < n; ++j){
          m[i][j] = 0;
          for(k = 0; k < n; ++k){
             m[i][j] += m1[i][k]*m2[k][j];
@@ -62,9 +62,15 @@ int main(int argc, char **argv){
    int i;
    float runt;
 
-   for(i = 100; i <= 200; i += 10){
+   if (argc > 1){ //if n is provided, just run for that n
+      i = atoi(argv[1]);
       runt = time_it(i);
-      printf("%d  %4.4e\n", i, runt);
+      printf("%4.4e\n", runt);
+   } else { //run for a range of n's
+      for(i = 100; i <= 1000; i += 100){
+         runt = time_it(i);
+         printf("%d  %4.4e\n", i, runt);
+      }
    }
 
    return 0;
