@@ -1,3 +1,6 @@
+%This program calculates timings for all 3 versions. It calls the compiled c function
+%as well.
+
 function _  = matmult
    for i = 20:20:200
       [t1 t2 t3] = time_it(i);
