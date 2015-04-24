@@ -7,8 +7,6 @@ import common
 from read_params import read_params
 import conditions
 
-
-
 def main():
    #Read parameters
    P = read_params("params.txt")
@@ -31,9 +29,16 @@ def main():
    coeffs = [1-6*C, C, C, C, C, C, C]
 
    # Initialize B matrix, such that A*dom(m+1) = B*dom(m)
-   B = sp.sparse.lil_matrix((P.N,P.N))
+   B = sp.sparse.lil_matrix((P.N,P.N)) #List of list format
    B = common.gen_matrix(B, offsets, coeffs, P)
-   B = sp.sparse.csr_matrix(B)
+   B = sp.sparse.csr_matrix(B) #compressed sparse row matrix
+
+   # Initialize dirichlet mask
+   M = conditions.boundary_mask(P) # zero if boundary, 1 otherwise
+   Minv = 1 - M # zero if non-boundary, 1 otherwise
+   Boundary = conditions.boundary_vector(P, 0) #Assuming constant boundary conditions
+   #These can be made time dependant if so desired
+
 
    #Initialize plot
    fig = plt.figure()
@@ -43,8 +48,9 @@ def main():
    common.plot_slice(ax, 'g', dom, P, i_slice=P.Nx/2)
 
    #evolve the system
-   for i in range(P.nSteps/40):
+   for i in range(P.nSteps):
        dom = B*dom # 1 time step
+       dom = dom*M + Boundary*Minv
        dom = dom + conditions.source(P, i) # Add heat source
 
    common.plot_slice(ax, 'r', dom, P, i_slice=P.Nx/2)

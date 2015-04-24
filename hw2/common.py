@@ -28,13 +28,13 @@ def wrap_around(coords, dims_size):
         coords[d] = coords[d] % dims_size[d]
     return coords
 
-def in_limits(coords, dims_size):
-   """Return true if all coordinates respect spatial boundaries"""
-   lower = all([coord >= 0 for coord in coords]) 
-   upper = all([coord < dim_size for coord,dim_size in zip(coords, dims_size)])
+def is_inner(coords, dims_size):
+   """Return true if point is not on boundary"""
+   lower = all([coord > 0 for coord in coords]) 
+   upper = all([coord < dim_size-1 for coord,dim_size in zip(coords, dims_size)])
    return lower and upper
 
-def gen_matrix(B, offsets, coeffs, P, wrap = False):
+def gen_matrix(B, offsets, coeffs, P):
    """Construct sparse coefficient matrix using offsets
    and wrap around boundary conditions"""
    dims_size = np.array([P.Nx, P.Ny, P.Nz])
@@ -42,10 +42,7 @@ def gen_matrix(B, offsets, coeffs, P, wrap = False):
       ijk = idx2ijk(row_idx, dims_size)
       for term in range(len(offsets)):
          ijk_offset = ijk + offsets[term] 
-         if wrap: #apply wrap_around bondary conditions
-            ijk_offset = wrap_around(ijk_offset, dims_size)
-         else: #ijk + offset should not exeed spatial boundaries
-            assert in_limits(ijk_offset, dims_size)
+         ijk_offset = wrap_around(ijk_offset, dims_size)
          col_idx = ijk2idx(ijk_offset, dims_size)
          B[row_idx, col_idx] = coeffs[term]
    return B
