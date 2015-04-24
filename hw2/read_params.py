@@ -21,4 +21,4 @@ class Params(object):
 
 if __name__ == "__main__":
     P = read_params("params.txt")
-    print P
+    print P.Alpha*P.dt/(P.dx*P.dx)

@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import cm
 
 def ijk2idx(coords, dims_size):
     """Given the spatial coordinates of a point (i,j,k) 
@@ -42,7 +41,7 @@ def gen_matrix(B, offsets, coeffs, P, wrap = False):
    for row_idx in range(P.N):
       ijk = idx2ijk(row_idx, dims_size)
       for term in range(len(offsets)):
-         ijk_offset = offsets[term]
+         ijk_offset = ijk + offsets[term] 
          if wrap: #apply wrap_around bondary conditions
             ijk_offset = wrap_around(ijk_offset, dims_size)
          else: #ijk + offset should not exeed spatial boundaries
@@ -51,13 +50,9 @@ def gen_matrix(B, offsets, coeffs, P, wrap = False):
          B[row_idx, col_idx] = coeffs[term]
    return B
 
-def plot_slice(dom, P, i_slice = 0):
+def plot_slice(ax, color, dom, P, i_slice = 0):
    dims_size = np.array([P.Nx, P.Ny, P.Nz])
    ijkvec = [idx2ijk(idx, dims_size) for idx in range(P.N)]
    slice_i = [[j,k,d] for [i,j,k],d in zip(ijkvec, dom) if i == i_slice]
    slice_i = np.array(slice_i).T
-   print slice_i
-   fig = plt.figure()
-   ax = fig.gca(projection="3d")
-   ax.scatter(*slice_i)
-   plt.show()
+   ax.scatter(*slice_i, c=color)
