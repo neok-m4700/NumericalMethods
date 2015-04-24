@@ -7,19 +7,19 @@ function [ A ] = genMatrix( off_coeff, dims_size)
 % IJK = dims_size(1) * dims_size(2) * dims_size(3)
 % off_coeff stores the d's and the C's as [ di dj dk C]
 % off_coeff has L rows
-   IJK = vecSize(dims_size);
+   IJK = prod(dims_size);
    A = zeros(IJK);
-   l = length(off_coeff);
+   l = rows(off_coeff);
    offsets = off_coeff(:, 1:end-1);
    coeffs = off_coeff(:, end);
-   for row = 1:IJK
+   for row = 0:IJK-1
       ijk = idx2ijk(row, dims_size);
       for term = 1:l
          offset = offsets(term, :)';
          ijk_offset = ijk .+ offset;
          col = ijk2idx(ijk_offset, dims_size);
-         if all(ijk_offset >= 0)
-            A(row,col) = coeffs(term);
+         if all(ijk_offset >= 1 && col < IJK)
+            A(row+1,col+1) = coeffs(term);
          end
       end
    end
@@ -41,9 +41,3 @@ function [ indices ] = idx2ijk( idx, dims_size)
    end
 end
 
-function [v] = vecSize(dims_size)
-   v = 1;
-   for d = 1:length(dims_size)
-      v = v*dims_size(d);
-   end
-end 
