@@ -2,3 +2,6 @@
 *.tgz
 *.o
 *.pyc
+**/.idea/
+*.iml
+
