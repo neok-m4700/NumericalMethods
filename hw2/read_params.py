@@ -5,7 +5,7 @@ def read_params(filename):
            tmp = [x.strip() for x in line.split("=")]
            sym = tmp[0]
            val = [x.strip() for x in tmp[1].split()][0]
-           setattr(P, sym, float(val))
+           setattr(P, sym, eval(val))
    #Set number of steps in each direction
    P.Nx = int(P.Lx/P.dx)    
    P.Ny = int(P.Ly/P.dx)    
@@ -21,4 +21,5 @@ class Params(object):
 
 if __name__ == "__main__":
     P = read_params("params.txt")
-    print P.Alpha*P.dt/(P.dx*P.dx)
+    for k in P.__dict__:
+       print "{} : {}".format(k, P.__dict__[k])

@@ -31,8 +31,8 @@ def main():
    coeffs = [1-6*C, C, C, C, C, C, C]
 
    # Initialize B matrix, such that A*dom(m+1) = B*dom(m)
-   B = sp.sparse.lil_matrix((P.N,P.N))
-   B = common.gen_matrix(B, offsets, coeffs, P)
+   B = sp.sparse.eye(P.N).tolil()
+   B = common.gen_matrix(B, offsets, coeffs, P, wrap=True)
    B = sp.sparse.csr_matrix(B)
 
    #Initialize plot
@@ -43,7 +43,7 @@ def main():
    common.plot_slice(ax, 'g', dom, P, i_slice=P.Nx/2)
 
    #evolve the system
-   for i in range(P.nSteps/40):
+   for i in range(P.nSteps):
        dom = B*dom # 1 time step
        dom = dom + conditions.source(P, i) # Add heat source
 

@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 def ijk2idx(coords, dims_size):
     """Given the spatial coordinates of a point (i,j,k) 
@@ -34,17 +32,18 @@ def is_inner(coords, dims_size):
    upper = all([coord < dim_size-1 for coord,dim_size in zip(coords, dims_size)])
    return lower and upper
 
-def gen_matrix(B, offsets, coeffs, P):
+def gen_matrix(B, offsets, coeffs, P, wrap=False):
    """Construct sparse coefficient matrix using offsets
    and wrap around boundary conditions"""
    dims_size = np.array([P.Nx, P.Ny, P.Nz])
    for row_idx in range(P.N):
       ijk = idx2ijk(row_idx, dims_size)
-      for term in range(len(offsets)):
-         ijk_offset = ijk + offsets[term] 
-         ijk_offset = wrap_around(ijk_offset, dims_size)
-         col_idx = ijk2idx(ijk_offset, dims_size)
-         B[row_idx, col_idx] = coeffs[term]
+      if wrap or is_inner(ijk, dims_size):
+          for term in range(len(offsets)):
+             ijk_offset = ijk + offsets[term]
+             ijk_offset = wrap_around(ijk_offset, dims_size)
+             col_idx = ijk2idx(ijk_offset, dims_size)
+             B[row_idx, col_idx] = coeffs[term]
    return B
 
 def plot_slice(ax, color, dom, P, i_slice = 0):

@@ -1,6 +1,7 @@
 import numpy as np
 import scipy as sp
 import scipy.sparse
+import scipy.linalg
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import common
@@ -20,20 +21,32 @@ def main():
    conditions.initial_domain(dom, P)
 
    #Set C
-   C = P.Alpha*P.dt/(P.dx*P.dx)
+   C = P.Alpha*P.dt/(2*(P.dx*P.dx))
 
    # Offsets of i, j, and k for the various terms in FTCS 
    # [0,0,0] -> [i,j,k]
    # [0,-1,0] -> [i,j-1,k] etc
-   offsets = np.array(np.mat( """0  0  0;
+   offsets_B = np.array(np.mat( """0  0  0;
            -1  0  0; 0 -1  0; 0  0 -1;
             1  0  0; 0  1  0; 0  0  1"""))
-   coeffs = [1-6*C, C, C, C, C, C, C]
+   coeffs_B = [1-6*C, C, C, C, C, C, C]
 
    # Initialize B matrix, such that A*dom(m+1) = B*dom(m)
-   B = sp.sparse.lil_matrix((P.N,P.N))
-   B = common.gen_matrix(B, offsets, coeffs, P)
+   B = sp.sparse.eye(P.N).tolil() #Diagonal values are 1 by default
+   B = common.gen_matrix(B, offsets_B, coeffs_B, P, wrap=True)
    B = sp.sparse.csr_matrix(B)
+
+   offsets_A = np.array(np.mat( """0  0  0;
+           -1  0  0; 0 -1  0; 0  0 -1;
+            1  0  0; 0  1  0; 0  0  1"""))
+   coeffs_A = [1 + 6*C, -C, -C, -C, -C, -C, -C]
+
+   # Initialize B matrix, such that A*dom(m+1) = B*dom(m)
+   A = sp.sparse.eye(P.N).tolil() #Diagonal values are 1 by default
+   A = common.gen_matrix(A, offsets_A, coeffs_A, P, wrap=True)
+
+   # Decompose A
+   PLU = sp.linalg.lu_factor(A.toarray())
 
    #Initialize plot
    fig = plt.figure()
@@ -43,8 +56,9 @@ def main():
    common.plot_slice(ax, 'g', dom, P, i_slice=P.Nx/2)
 
    #evolve the system
-   for i in range(P.nSteps/40):
-       dom = B*dom # 1 time step
+   for i in range(P.nSteps):
+       #sove for x, where Ax = B*dom
+       dom = sp.linalg.lu_solve(PLU, B*dom)
        dom = dom + conditions.source(P, i) # Add heat source
 
    common.plot_slice(ax, 'r', dom, P, i_slice=P.Nx/2)

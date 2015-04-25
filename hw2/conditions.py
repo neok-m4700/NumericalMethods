@@ -6,13 +6,16 @@ def initial_domain(dom, Params):
    """Returns a guassian centered around the centre of the hypercube"""
    P = Params
    for i in range(P.Nx):
-      x = 1.0*i/P.Nx;
+      x = 1.0*i/P.Nx - 0.5;
       for j in range(P.Ny):
-         y = 1.0*j/P.Nx
+         y = 1.0*j/P.Nx - 0.5;
          for k in range(P.Nz):
-            z = 1.0*k/P.Nx
-            dom[common.ijk2idx([i,j,k],[P.Nx,P.Ny,P.Nz])] = P.A*np.exp(
-                  -1.0/(2*P.sig*P.sig)*(x*x + y*y + z*z))
+            z = 1.0*k/P.Nx - 0.5;
+            dom[common.ijk2idx([i,j,k],[P.Nx,P.Ny,P.Nz])] = (
+               P.A*np.exp( -1.0/(2*P.sig*P.sig)*(x*x + y*y + z*z)) +
+               np.random.rand()*P.A*P.Randomness)
+
+
 
 def boundary_mask(P):
    """Mask the boundary values on the domain vector
@@ -28,10 +31,9 @@ def boundary_mask(P):
 def boundary_vector(P, t):
    """Returns a boundary vector"""
    bv = np.zeros([P.N, 1])
-   initial_domain(bv, P) ##we are using our orginal gaussian for now
    return bv
 
 def source(P, tstep):
     """Heat source"""
-    return 1.0*P.dt
+    return P.S*P.dt
 

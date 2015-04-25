@@ -1,9 +1,12 @@
 Alpha = 6 // in m^2/s
 dt = 0.00001 // in s
-T =  .1 // Total evolution time
+T =  .01 // Total evolution time
 dx = .1 // in m
 Lx = 1 // in m
 Ly = 1 // in m
 Lz = 1 // in m
 A = 1.0 // for initial gaussian
 sig = 0.5 //for initial gaussian
+S = 10.0 // Heat source intensity
+Randomness = 0.2 // Randomness wrt A
+boundary = "wrap" // "wrap" or "dirichlet"
