@@ -3,12 +3,15 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+
 import common
 from params import Params
 import conditions
 import boundaries
 import drivers
+
 import sys
+import time
 
 def main():
    P = Params("params.txt")
@@ -30,7 +33,9 @@ def main():
    boundary = boundaries.__dict__[P.boundary]()
 
    #Run it!
+   tic = time.clock()
    dom_final = evolve(dom_initial, driver, boundary)
+   print time.clock() - tic
 
    #Plot it!
    if(P.plot):

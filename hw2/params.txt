@@ -1,6 +1,6 @@
 Alpha = 5 // in m^2/s
 dt = 0.0001 // in s
-T = 0.01 // Total evolution time
+T = 0.1 // Total evolution time
 dx = .1 // in m
 Lx = 1 // in m
 Ly = 1 // in m
@@ -11,4 +11,4 @@ S = 10.0 // Heat source intensity
 Randomness = 0.2 // Noise wrt A
 boundary = "Dirichlet" // "Wraparound" or "Dirichlet"
 driver = "CN" // "FTCS" or "CN" or "ADI"
-plot = True
+plot = False
