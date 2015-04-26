@@ -18,8 +18,7 @@ class FTCS(object):
       self.B = sp.sparse.spdiags(data, diags, P.N, P.N)
 
    def step(self, dom):
-      dom = self.B*dom
-      return dom
+      return self.B * dom
 
 
 class CN(object):
