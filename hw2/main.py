@@ -4,14 +4,14 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
 import common
-from read_params import read_params
+from params import Params
 import conditions
 import boundaries
 import drivers
 import sys
 
 def main():
-   P = read_params("params.txt")
+   P = Params("params.txt")
    #Set number of steps in each direction plus boundaries
    P.Nx = int(P.Lx/P.dx) + 2
    P.Ny = int(P.Ly/P.dx) + 2
@@ -22,32 +22,34 @@ def main():
    P.nSteps = int(P.T/P.dt)
    P.dims_size = [P.Nx, P.Ny, P.Nz]
    #Initialize Domain
-   dom_initial = conditions.initial_domain(P)
+   dom_initial = conditions.initial_domain()
    if len(sys.argv) > 1:       
        #Override params.txt if a driver is provided on the command line
        P.driver = sys.argv[1]
-   driver = drivers.__dict__[P.driver](P)
-   boundary = boundaries.__dict__[P.boundary](P)
+   driver = drivers.__dict__[P.driver]()
+   boundary = boundaries.__dict__[P.boundary]()
 
    #Run it!
-   dom_final = evolve(dom_initial, driver, boundary, P)
+   dom_final = evolve(dom_initial, driver, boundary)
 
    #Plot it!
    if(P.plot):
-       plot(dom_initial, dom_final, P)
+       plot(dom_initial, dom_final)
 
-def evolve(dom, driver, boundary, P):
+def evolve(dom, driver, boundary):
    #MAIN LOOP
+   P = Params.instance
    for i in range(P.nSteps):
       dom = driver.step(dom) #step
       dom = boundary.update(dom) #boundary
-      dom = dom + conditions.source(P, i) #source
+      dom = dom + conditions.source(i) #source
    return dom 
 
-def plot(dom1, dom2, P):
+def plot(dom1, dom2):
+   P = Params.instance
    fig = plt.figure()
    i_slice = P.Nx/2
-   ijkvec = [common.idx2ijk(idx, P) for idx in range(P.N)]
+   ijkvec = [common.idx2ijk(idx) for idx in range(P.N)]
    def plot_slice(dom, plotnum):
        ax  = fig.add_subplot(2,1,plotnum,projection="3d")
        ax.set_zlim3d(0,2)

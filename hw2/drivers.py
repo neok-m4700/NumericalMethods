@@ -5,11 +5,12 @@ import scipy as sp
 import scipy.sparse
 import scipy.linalg
 import scipy.sparse.linalg
-import common
+from params import Params
 
 class FTCS(object):
    """Forward time Center Space Method"""
-   def __init__(self,P):
+   def __init__(self):
+      P = Params.instance
       C = P.Alpha * P.dt / (P.dx * P.dx)
       coeffs = [1 - 6 * C, C, C, C, C, C, C]
       data = np.tile(np.reshape(coeffs,[7,1]),[1,P.N])
@@ -23,7 +24,8 @@ class FTCS(object):
 
 class CN(object):
    """Crank Nicholson Method"""
-   def __init__(self,P):
+   def __init__(self):
+      P = Params.instance
       C = P.Alpha * P.dt / (2*P.dx * P.dx)
       coeffs = [1 - 6 * C, C, C, C, C, C, C]
       data = np.tile(np.reshape(coeffs,[7,1]),[1,P.N])
@@ -42,14 +44,14 @@ class CN(object):
 
 class ADI(object):
    """Aternate Directions Implicit method"""
-   def __init__(self, P):
+   def __init__(self):
+      P = Params.instance
       C = P.Alpha*P.dt/(3*(P.dx*P.dx))
       data = np.tile(np.array([-2*C, C, C]).reshape(3,1), [1, P.N])
    
       Ai = sp.sparse.spdiags(data , [0 , -P.Ny*P.Nz , P.Ny*P.Nz ] , P.N , P.N)
       Aj = sp.sparse.spdiags(data , [0 , -P.Nz      , P.Nz      ] , P.N , P.N)
       Ak = sp.sparse.spdiags(data , [0 , -1         , 1         ] , P.N , P.N)
-      print Ak.toarray()[:5,:5]
       I  = sp.sparse.eye(P.N)
    
       # Decomposing left side matrices
