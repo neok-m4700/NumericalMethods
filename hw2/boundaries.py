@@ -1,3 +1,5 @@
+# Defines the various boundary condition implementations
+
 import numpy as np
 import scipy as sp
 import scipy.sparse
@@ -49,7 +51,7 @@ class Wraparound(object):
                idx  = common.ijk2idx([i  , j  , k]  , P)
                idxw = common.ijk2idx([iw , jw , kw] , P)
                wrapper[idx,idxw] = 1
-      self.wrapper = wrapper
+      self.wrapper = wrapper.tocsr()
                
    def update(self, dom):
       return self.wrapper*dom

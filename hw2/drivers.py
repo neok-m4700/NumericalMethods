@@ -1,3 +1,5 @@
+# Implement the 3 drivers: FTCS, CN, and ADI
+
 import numpy as np
 import scipy as sp
 import scipy.sparse
@@ -42,26 +44,27 @@ class ADI(object):
    """Aternate Directions Implicit method"""
    def __init__(self, P):
       C = P.Alpha*P.dt/(3*(P.dx*P.dx))
-      data = np.ones([3, P.N])*C
+      data = np.tile(np.array([-2*C, C, C]).reshape(3,1), [1, P.N])
    
       Ai = sp.sparse.spdiags(data , [0 , -P.Ny*P.Nz , P.Ny*P.Nz ] , P.N , P.N)
       Aj = sp.sparse.spdiags(data , [0 , -P.Nz      , P.Nz      ] , P.N , P.N)
       Ak = sp.sparse.spdiags(data , [0 , -1         , 1         ] , P.N , P.N)
+      print Ak.toarray()[:5,:5]
       I  = sp.sparse.eye(P.N)
    
       # Decomposing left side matrices
-      self.LUi = sp.linalg.lu_factor((I-Ai).toarray())
-      self.LUj = sp.linalg.lu_factor((I-Aj).toarray())
-      self.LUk = sp.linalg.lu_factor((I-Ak).toarray())
+      self.LU1 = sp.linalg.lu_factor((I-Ai).toarray())
+      self.LU2 = sp.linalg.lu_factor((I-Aj).toarray())
+      self.LU3 = sp.linalg.lu_factor((I-Ak).toarray())
    
       # Right side matrics
-      self.Bi = I + Aj + Ak
-      self.Bj = I + Ak + Ai
-      self.Bk = I + Ai + Aj
+      self.B1 = I + Aj + Ak
+      self.B2 = I + Ak + Ai
+      self.B3 = I + Ai + Aj
    
    def step(self, dom):
-      dom = sp.linalg.lu_solve(self.LUi, self.Bi*dom)
-      dom = sp.linalg.lu_solve(self.LUj, self.Bj*dom)
-      dom = sp.linalg.lu_solve(self.LUk, self.Bk*dom)
+      dom = sp.linalg.lu_solve(self.LU1, self.B1*dom)
+      dom = sp.linalg.lu_solve(self.LU2, self.B2*dom)
+      dom = sp.linalg.lu_solve(self.LU3, self.B3*dom)
       return dom
 
