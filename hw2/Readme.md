@@ -15,6 +15,7 @@ If the 'method' and 'domain length' parameters are provided on the command line 
 
 ## Results
 Data can be collected by running run.sh. 
+Turn plotting off in 'params.txt' if using this script to run many simulations
 Data is already stored for a run in data/
 You can find plotter performance in data/performance.png
 You can generate this file given the gnpuplot script in data/
