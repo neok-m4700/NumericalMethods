@@ -1,5 +1,4 @@
 # Defines the various boundary condition implementations
-
 import numpy as np
 import scipy as sp
 import scipy.sparse
@@ -19,7 +18,7 @@ class Dirichlet(object):
       self.mask_inv = 1 - self.mask  # zero if non-boundary, 1 otherwise
       #Assuming constant boundary conditions 
       #These can be made time dependant if so desired
-      self.boundary = conditions.boundary_vector(0) 
+      self.boundary = conditions.boundary_vector() 
 
    def gen_mask(self):
       """Mask the boundary values on the domain vector

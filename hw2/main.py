@@ -14,28 +14,28 @@ import sys
 import time
 
 def main():
+   #Read Params
    P = Params("params.txt")
-   #Set number of steps in each direction plus boundaries
-   P.Nx = int(P.Lx/P.dx) + 2
-   P.Ny = int(P.Ly/P.dx) + 2
-   P.Nz = int(P.Lz/P.dx) + 2
-   #Set total number of steps
-   P.N =  P.Nx * P.Ny * P.Nz
-   #Set total number of time steps
-   P.nSteps = int(P.T/P.dt)
-   P.dims_size = [P.Nx, P.Ny, P.Nz]
+   if len(sys.argv) > 1:       
+      #Override params.txt if a driver is provided on the command line
+      P.driver = sys.argv[1]
+   if len(sys.argv) > 2:       
+      #Override params.txt if a domain size is provided on the command line
+      P.Lx = P.Ly = P.Lz = float(sys.argv[2])
+   P.set_dependent()
+
    #Initialize Domain
    dom_initial = conditions.initial_domain()
-   if len(sys.argv) > 1:       
-       #Override params.txt if a driver is provided on the command line
-       P.driver = sys.argv[1]
-   driver = drivers.__dict__[P.driver]()
-   boundary = boundaries.__dict__[P.boundary]()
+
+   # Assign Driver
+   driver   = {"FTCS" : drivers.FTCS, "CN" : drivers.CN, "ADI" : drivers.ADI}[P.driver]()
+   # Assign boundary conditions
+   boundary = {"Dirichlet" : boundaries.Dirichlet, "Wraparound" : boundaries.Wraparound}[P.boundary]() 
 
    #Run it!
    tic = time.clock()
    dom_final = evolve(dom_initial, driver, boundary)
-   print time.clock() - tic
+   print (time.clock() - tic)/P.nSteps
 
    #Plot it!
    if(P.plot):
@@ -47,7 +47,7 @@ def evolve(dom, driver, boundary):
    for i in range(P.nSteps):
       dom = driver.step(dom) #step
       dom = boundary.update(dom) #boundary
-      dom = dom + conditions.source(i) #source
+      dom = dom + conditions.source(dom) #source
    return dom 
 
 def plot(dom1, dom2):

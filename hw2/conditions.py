@@ -18,14 +18,14 @@ def initial_domain():
                np.random.rand()*P.A*P.Randomness)
    return dom
 
-def boundary_vector(t):
+def boundary_vector():
    """Returns a vector representing boundary conditions"""
    P = Params.instance
    bv = np.zeros([P.N, 1])
    return bv
 
-def source(tstep):
-    """Heat source"""
+def source(dom):
+    """Heat source. Returning Constant"""
     P = Params.instance
     return P.S*P.dt
 
