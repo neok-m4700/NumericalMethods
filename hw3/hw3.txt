@@ -1,0 +1,75 @@
+=====================================================================
+Homework 3
+Due Friday, May 15 by 11:59 PM
+MPCS 58001
+Spring 2015
+=====================================================================
+
+=====================================================================
+Submission instructions
+=====================================================================
+Email your assignments to Tim (theshuo@gmail.com) and Amanda  (amanda.louise.lund@gmail.com) with the subject "[MPCS 58001] HW3”.
+
+=====================================================================
+Code
+=====================================================================
+Implement the following three iterative solvers for the Crank
+Nicholson scheme for the 3d heat equation. For simplicity, you do not
+have to be as general as in HW2. You may assume constant boundary
+conditions and a cubic domain.
+
+1. Jacobi method (20 pts)
+
+2. Gauss-Seidel method (20 pts)
+
+3. Successive over-relaxation (20 pts)
+
+=====================================================================
+Analysis
+=====================================================================
+4. Include timers in your code for evaluating total runtime
+performance. Submit a plot of your code's "problem size" vs. "runtime
+per algorithmic timestep" for each of the implemented numerical
+methods. When evaluating the performance, use boundary conditions
+equal to 0 and a cubic domain with dx=dy=dz. (10 pts)
+
+=====================================================================
+Theory
+=====================================================================
+Perform stability analysis for the following discretizations of the
+heat equation. You can assume a cubic domain.  In other words,
+calculate the 1-step growth rates for:
+
+5. 2D and 3D FTCS (5 pts)
+
+6. 1D, 2D, and 3D BECS (5 pts)
+
+=====================================================================
+Mathematics
+=====================================================================
+7. Derive the linear system for a cubic spline interpolation of n
+points. Solve the linear system to interpolate a sample random set of
+points generated in matlab.  show a plot of your result. (10 pts,
+support document provided)
+
+8. given the following matrix A and vector u (10 pts)
+
+    | 7  -2   0|      	 |1|
+A = |-2   6  -2|,    u = |1|
+    | 0  -2   5|         |1|
+
+do the following by hand (no use of computer)
+
+a. compute the eigenvalues and eigenvectors of A
+
+b. find the coefficients of u using the eigenvector basis:
+ie if we expand	u as
+   u = c1*x1 + c2*x2 + c3*x3
+where the x's are the eigenvectors of A, then find the c's.
+
+c. show	that the operation in b	is equivalent to computing
+S^-1 * u where S is a matrix whose columns are the eigenvectors
+of A. hint: exploit the	orthogonality of eigenvectors to make
+this a simple calculation on paper.
+
+d. compute A^10	u

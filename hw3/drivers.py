@@ -29,5 +29,6 @@ class CN(object):
       self.solver = solver(A)
 
    def step(self, dom):
-      return self.solver.solve(self.B * dom)
+       newdom, iters = self.solver.solve(self.B * dom)
+       return newdom, iters
 

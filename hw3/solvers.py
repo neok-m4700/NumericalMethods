@@ -23,7 +23,7 @@ class Iterative(object):
             if err < self.epsilon:
                 break;
             xold = xnew
-        return xnew;
+        return xnew, i
 
 
 class Jacobi(Iterative):
@@ -42,7 +42,7 @@ class Gauss(Iterative):
 class SOR(Iterative):
 
     def get_Pinv(self, A):
-        w = 1.9
+        w = 0.6
         D = sparse.identity(A.shape[0]) * A[0, 0]
         L = sparse.tril(A)
         P = D = w * L

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator, FormatStrFormatter
+import argparse
 
 import common
 from params import Params
@@ -17,13 +18,15 @@ import time
 
 def main():
     # Read Params
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s" , "--solver", default="Jacobi", help="one of Jacobi, Gauss, SOR")
+    parser.add_argument("-w" , "--omega" , default="1.0", help="w for SOR")
+    parser.add_argument("-x" , "--length" , default="1.0", help="Length of one side of domain")
+    args = parser.parse_args()
     P = Params("params.txt")
-    if len(sys.argv) > 1:
-        # Override params.txt if a driver is provided on the command line
-        P.driver = sys.argv[1]
-    if len(sys.argv) > 2:
-        # Override params.txt if a domain size is provided on the command line
-        P.Lx = P.Ly = P.Lz = float(sys.argv[2])
+    P.solver = args.solver
+    P.Lx = P.Ly = P.Lz = float(args.length)
+    P.omega = args.omega
     P.set_dependent()
 
     # Initialize Domain
@@ -35,15 +38,13 @@ def main():
     # Assign Driver
     driver = drivers.CN(solver)
 
-
     # Assign Boundary
     boundary = boundaries.Dirichlet()
 
-
     # Run it!
     tic = time.clock()
-    dom_final = evolve(dom_initial, driver, boundary)
-    print (time.clock() - tic) / P.nSteps
+    dom_final, meaniters = evolve(dom_initial, driver, boundary)
+    print (time.clock() - tic) / P.nSteps, meaniters
 
     # Plot it!
     if (P.plot):
@@ -53,10 +54,12 @@ def main():
 def evolve(dom, driver, boundary):
     # MAIN LOOP
     P = Params.instance
+    sumiters = 0
     for i in range(P.nSteps):
-        dom = driver.step(dom)  # step
+        dom, iters = driver.step(dom)  # step
+        sumiters += iters
         dom = boundary.update(dom)
-    return dom
+    return dom, sumiters/P.nSteps
 
 
 def plot(dom1, dom2):
