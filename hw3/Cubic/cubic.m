@@ -6,7 +6,7 @@ function _ = cubic(n)
    A = spdiags(B, [-1 0 1], n-2, n-2);
    xs = points(:,1);
    ys = points(:,2);
-   h = points(2,1) - points(1,1)
+   h = points(2,1) - points(1,1);
    b = (ys(1:n-2) - 2*ys(2:n-1) + ys(3:n)) * 6 / (h*h);
    M = A\b;
    M = [0 ; M ; 0];
@@ -23,15 +23,9 @@ function _ = cubic(n)
          pys(i,j) = as(i)*(pxs(i,j) - xs(i))^3 + bs(i)*(pxs(i,j) - xs(i))^2 + cs(i)*(pxs(i,j) - xs(i)) + ds(i);
       end
    end
-
-   plot(xs, ys, "b.", 'MarkerSize', 10)
+   plot(xs, ys, "bo", 'MarkerSize', 5)
    plot(pxs, pys, "r.")
    hold off
-
-   
-
-
-
 end
 
 function points = gen_points(n)
