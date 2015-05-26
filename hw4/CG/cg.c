@@ -12,6 +12,8 @@ typedef struct _Opt_ {
     double A; // Gaussian A
     double sig; // Gaussian sigma
     double r; //noise scaling
+    double source; //source
+    double boundary; //boundary value
 } Opt;
 
 
@@ -23,22 +25,24 @@ double dotprod(int N, const double *r1, const double *r2);
 void copy_vector(int N, double *r1, double *r2) ;
 void linear_comb(int N, double *r1, double a, double *r2, double b, double *r3);
 
+
 int main(int argc, char **argv) {
     int c;
     Opt *o = malloc(sizeof(struct _Opt_));
 
     //specify default values
     o->n = 20;
-    o->N = 1000;
+    o->N = 5000;
     o->dx = 0.1;
-    o->dt = 0.001;
+    o->dt = 0.01;
     o->alpha = 1;
     o->A = 2;
     o->sig = 1;
     o->r = 0.001;
+    o->source = 0.1;
 
     //get command line values
-    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:")) != -1)
+    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:")) != -1)
         switch(c)
         {
             case 'n': o->n = atoi(optarg); break;
@@ -49,6 +53,7 @@ int main(int argc, char **argv) {
             case 'A': o->A = atof(optarg); break;
             case 's': o->sig = atof(optarg); break;
             case 'r': o->r = atof(optarg); break;
+            case 'S': o->source = atof(optarg); break;
             default: abort();
         }
 
@@ -86,8 +91,20 @@ int main(int argc, char **argv) {
             }
         }
 
+        //solve Ax = b
         cg(o, x, C, b);
-        //copy_vector(n*n, x, b);
+
+        //add source and reset boundaries
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                if (i==0 || i==n-1 || j==0 || j==n-1)
+                    x[n*i + j] = 0;
+                else
+                    x[n*i + j] += o->source;
+            }
+        }
+
+        //swap pointers
         double *tmp = dom;
         dom = x;
         x = tmp;
