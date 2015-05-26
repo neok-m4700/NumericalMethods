@@ -34,12 +34,13 @@ int main(int argc, char **argv) {
     o->n = 20;
     o->N = 5000;
     o->dx = 0.1;
-    o->dt = 0.01;
+    o->dt = 0.001;
     o->alpha = 1;
     o->A = 2;
     o->sig = 1;
-    o->r = 0.001;
-    o->source = 0.1;
+    o->r = 0.1;
+    o->source = 0.01;
+    o->boundary = 0;
 
     //get command line values
     while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:")) != -1)
@@ -66,8 +67,8 @@ int main(int argc, char **argv) {
     //make a rhs vector
     double *b = malloc(sizeof(double) * o->n * o->n);
     for (int i = 0; i < o->n*o->n; ++i) {
-        dom[i] = 0;
-        b[i] = 0;
+        dom[i] = o->boundary;
+        b[i] = o->boundary;
     }
     //initialize gaussian
     gaussian(o, dom);
@@ -98,7 +99,7 @@ int main(int argc, char **argv) {
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 if (i==0 || i==n-1 || j==0 || j==n-1)
-                    x[n*i + j] = 0;
+                    x[n*i + j] = o->boundary;
                 else
                     x[n*i + j] += o->source;
             }
