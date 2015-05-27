@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
 }
 
 void cg(Opt *o, double *x, double C, double *b) {
-    int n = o->n + 2;
+    int n = o->n;
     int N = n*n;
     double alpha;
     double beta;
