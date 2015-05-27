@@ -59,12 +59,16 @@ int main(int argc, char **argv) {
             default: abort();
         }
 
-    int n = o->n + 2;
+    int n = o->n = o->n + 2;
     int N = n*n;
 
-    double dom[N] = {o->boundary};
-    double x[N] = {0};
-    double b[N];
+    double *dom = malloc(sizeof(double)*N);
+    double *x = malloc(sizeof(double)*N);
+    double *b = malloc(sizeof(double)*N);
+    for(int i = 0; i < N; ++i) { 
+      dom[i] = o->boundary; 
+    }
+
 
     //initialize gaussian
     gaussian(o, dom);
@@ -78,7 +82,7 @@ int main(int argc, char **argv) {
     for (int k = 0; k < o->N; ++k) { //time stepping
 
         //calculate B*dom
-        bi_diagonal_prod(-C, n, b, dom);
+        bi_diagonal_prod(C, n, b, dom);
 
         //solve Ax = b
         cg(o, x, C, b);
@@ -114,7 +118,7 @@ void cg(Opt *o, double *x, double C, double *b) {
     double Ax[N];
 
     //r = b - Ax
-    bi_diagonal_prod(C, n, Ax, x);
+    bi_diagonal_prod(-C, n, Ax, x);
     linear_comb(N, r, 1, b, -1, Ax);
 
     //p = r
@@ -126,7 +130,7 @@ void cg(Opt *o, double *x, double C, double *b) {
     //main iterative loop of cg
     for (int k = 0; k < N; ++k) {
         //Ap = A*p
-        bi_diagonal_prod(C, n, Ap, p);
+        bi_diagonal_prod(-C, n, Ap, p);
 
         double pAp = dotprod(N, p, Ap);
         alpha = rsold / pAp;
@@ -143,7 +147,6 @@ void cg(Opt *o, double *x, double C, double *b) {
     }
 }
 
-}
 
 double dotprod(int N, const double *r1, const double *r2) {
     double rdot = 0;
@@ -204,4 +207,24 @@ void save_output(Opt *o, double *b) {
     fclose(f);
 }
 
+void bi_diagonal_prod(double C, int n, double *product, const double *multiplicant) {
+    for(int i = 0; i < n; ++i) {
+      product[i*n + 0] = multiplicant[0];
+      product[i*n + n-1] = multiplicant[n];
+    }
+    for(int j = 0; j < n; ++j) {
+      product[0 + j] = multiplicant[0];
+      product[(n-1)*n + j] = multiplicant[n];
+    }
+    for (int i = 1; i < n-1; ++i) { //iterating over domain
+        for (int j = 1; j < n-1; ++j) {
+            int idx = i*n + j;
+            product[idx] = (1.0 - 4*C) * multiplicant[idx]
+                         + (  C * multiplicant[idx - n])
+                         + (  C * multiplicant[idx + n])
+                         + (  C * multiplicant[idx - 1])
+                         + (  C * multiplicant[idx + 1]);
+        }
+    }
+}
 
