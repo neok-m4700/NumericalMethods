@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     o->boundary = 0;
 
     //get command line values
-    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:")) != -1)
+    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:b:")) != -1)
         switch(c)
         {
             case 'n': o->n = atoi(optarg); break;
@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
             case 's': o->sig = atof(optarg); break;
             case 'r': o->r = atof(optarg); break;
             case 'S': o->source = atof(optarg); break;
+            case 'b': o->boundary = atof(optarg); break;
             default: abort();
         }
 
@@ -90,11 +91,11 @@ int main(int argc, char **argv) {
 
         //add source and reset boundaries
         for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j)
+            for (int j = 0; j < n; ++j){
+                x[n*i + j] += o->source;
                 if (i==0 || i==n-1 || j==0 || j==n-1)
                     x[n*i + j] = o->boundary;
-                else
-                    x[n*i + j] += o->source;
+            }
 
         //swap pointers
         double *tmp = dom;
