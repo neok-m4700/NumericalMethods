@@ -24,7 +24,7 @@ void cg(Opt *o, double *x, double C, double *b); //solves Ax = B
 double dotprod(int N, const double *r1, const double *r2);
 void copy_vector(int N, double *r1, double *r2) ;
 void linear_comb(int N, double *r1, double a, double *r2, double b, double *r3);
-void bi_diagonal_prod(double C, int l, int h, int n, double *product, const double *multiplicant);
+void bi_diagonal_prod(double C, int n, double *product, const double *multiplicant);
 
 int main(int argc, char **argv) {
     int c;
@@ -59,18 +59,12 @@ int main(int argc, char **argv) {
             default: abort();
         }
 
-    int n = o->n;
+    int n = o->n + 2;
+    int N = n*n;
 
-    double *dom = malloc(sizeof(double) * n*n); //domain vector
-    double *x   = malloc(sizeof(double) * n*n); //solution vector
-    double *b   = malloc(sizeof(double) * n*n); //rhs vector
-
-    //initialize
-    for (int i = 0; i < n*n ; ++i) {
-        dom[i] = o->boundary;
-        b[i]   = o->boundary;
-        x[i]   = o->boundary;
-    }
+    double dom[N] = {o->boundary};
+    double x[N] = {0};
+    double b[N];
 
     //initialize gaussian
     gaussian(o, dom);
@@ -84,18 +78,15 @@ int main(int argc, char **argv) {
     for (int k = 0; k < o->N; ++k) { //time stepping
 
         //calculate B*dom
-        bi_diagonal_prod(-C, 1, n-1, n, b, dom);
+        bi_diagonal_prod(-C, n, b, dom);
 
         //solve Ax = b
         cg(o, x, C, b);
 
         //add source and reset boundaries
-        for (int i = 0; i < n; ++i)
-            for (int j = 0; j < n; ++j){
+        for (int i = 1; i < n-1; ++i)
+            for (int j = 1; j < n-1; ++j)
                 x[n*i + j] += o->source;
-                if (i==0 || i==n-1 || j==0 || j==n-1)
-                    x[n*i + j] = o->boundary;
-            }
 
         //swap pointers
         double *tmp = dom;
@@ -113,7 +104,7 @@ int main(int argc, char **argv) {
 }
 
 void cg(Opt *o, double *x, double C, double *b) {
-    int n = o->n;
+    int n = o->n + 2;
     int N = n*n;
     double alpha;
     double beta;
@@ -123,7 +114,7 @@ void cg(Opt *o, double *x, double C, double *b) {
     double Ax[N];
 
     //r = b - Ax
-    bi_diagonal_prod(C, 0, n, n, Ax, x);
+    bi_diagonal_prod(C, n, Ax, x);
     linear_comb(N, r, 1, b, -1, Ax);
 
     //p = r
@@ -135,7 +126,7 @@ void cg(Opt *o, double *x, double C, double *b) {
     //main iterative loop of cg
     for (int k = 0; k < N; ++k) {
         //Ap = A*p
-        bi_diagonal_prod(C, 0, n, n, Ap, p);
+        bi_diagonal_prod(C, n, Ap, p);
 
         double pAp = dotprod(N, p, Ap);
         alpha = rsold / pAp;
@@ -152,18 +143,6 @@ void cg(Opt *o, double *x, double C, double *b) {
     }
 }
 
-
-void bi_diagonal_prod(double C, int l, int h, int n, double *product, const double *multiplicant) {
-    for (int i = l; i < h; ++i) { //iterating over domain
-        for (int j = l; j < h; ++j) {
-            int idx = i*n + j;
-            product[idx] =         (1.0 + 4*C) * multiplicant[idx]
-                         - ( i-1 == -1 ? 0 : C * multiplicant[idx - n])
-                         - ( i+1 ==  n ? 0 : C * multiplicant[idx + n])
-                         - ( j-1 == -1 ? 0 : C * multiplicant[idx - 1])
-                         - ( j+1 ==  n ? 0 : C * multiplicant[idx + 1]);
-        }
-    }
 }
 
 double dotprod(int N, const double *r1, const double *r2) {
