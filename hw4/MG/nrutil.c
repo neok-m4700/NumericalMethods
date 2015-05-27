@@ -1,6 +1,5 @@
 #if defined(__STDC__) || defined(ANSI) || defined(NRANSI) /* ANSI */
 
-#include "nrutil.h"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
