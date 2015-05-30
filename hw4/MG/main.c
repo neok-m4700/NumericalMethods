@@ -21,7 +21,6 @@ typedef struct _Opt_ { //Options
 void gaussian(Opt *o, double **b);
 void save_output(Opt *o, double **b);
 void noise(Opt *o, double **b);
-void bi_diagonal_prod(double C, int n, double **aux, double **dom);
 
 int main(int argc, char **argv) {
     int c;
@@ -29,15 +28,15 @@ int main(int argc, char **argv) {
     int ncycles; //for mutligrid
 
     //specify default values
-    o->n = 129;
+    o->n = 33;
     o->N = 100;
     o->dx = 1.0;
-    o->dt = 5.0;
+    o->dt = 7.0;
     o->alpha = 0.1;
     o->A = 100;
     o->sig = 5;
-    o->r = 0.0;
-    o->source = 0.000;
+    o->r = 2;
+    o->source = 0.001;
     ncycles = 1;
 
     //get command line values
@@ -60,9 +59,8 @@ int main(int argc, char **argv) {
     int n = o->n;
 
     double **dom = dmatrix(1, n, 1, n);
-    double **x = dmatrix(1,n,1,n);
-    double **b = dmatrix(1,n,1,n);
     double **aux = dmatrix(1,n,1,n);
+    double **x = dmatrix(1,n,1,n);
 
     //initialize gaussian
     gaussian(o, dom);
@@ -79,7 +77,14 @@ int main(int argc, char **argv) {
         bi_diagonal_prod(C, n,aux, dom);
 
         //solve Ax = b
-        mglin(b, n, ncycles);
+
+        //run mglin directly
+        //mglin(dom, n, ncycles); 
+
+        //run mglin to generate guess for cg
+        copy(x, dom, n); //guess goes in x
+        mglin(x, n, ncycles); //run mg
+        cg(dom, x, n); //run cg
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
@@ -93,9 +98,8 @@ int main(int argc, char **argv) {
 
     //free stuff
     free_dmatrix(dom, 1, n, 1, n);
-    free_dmatrix(x, 1, n, 1, n);
-    free_dmatrix(b, 1, n, 1, n);
     free_dmatrix(aux, 1, n, 1, n);
+    free_dmatrix(x, 1, n, 1, n);
     free(o);
     //return
     return 0;
@@ -176,56 +180,3 @@ void bi_diagonal_prod(double C, int n, double **aux, double **dom) {
 
 }
 
-double dotprod(int n, double **r1, double **r2) {
-    double rdot = 0;
-    for (int i = 1; i <= n; ++i)
-       for(int j = 1; j <= n; ++j) 
-            rdot += r1[i][j] * r2[i][j];
-    return rdot;
-}
-
-void linear_comb(int n, double **r1, double a, double **r2, double b, double **r3){
-    //r1 = a*r2 + b*r3
-    for (int i = 1; i <= n; ++i) 
-       for(int j = 1; j <= n; ++j) 
-          r1[i][j] = a*r2[i][j] + b*r3[i][j];
-}
-
-void cg(double **x, int n) {
-    double alpha;
-    double beta;
-    double r[n][n];
-    double p[n][n];
-    double Ap[n][n];
-    double Ax[n][n];
-    double aux[n][n];
-
-    //r = b - Ax
-    bi_diagonal_prod(-C, n, aux, x);
-    linear_comb(N, r, 1, b, -1, Ax);
-
-    //p = r
-    copy_vector(N, p, r);
-
-    double rsold, rsnew;
-    rsold = dotprod(N, r, r);
-
-    //main iterative loop of cg
-    for (int k = 0; k < N; ++k) {
-        //Ap = A*p
-        bi_diagonal_prod(-C, n, Ap, p);
-
-        double pAp = dotprod(N, p, Ap);
-        alpha = rsold / pAp;
-
-        linear_comb(N, x, 1.0, x, alpha, p);
-        linear_comb(N, r, 1.0, r, -alpha, Ap);
-
-        rsnew = dotprod(N, r, r);
-        if (rsnew < 1e-10) return;
-
-        beta = rsnew / rsold;
-        linear_comb(N, p, 1.0, r, beta, p);
-        rsold = rsnew;
-    }
-}
