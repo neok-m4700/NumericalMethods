@@ -17,27 +17,27 @@ void mglin(double **u, int n, int ncycle){
   double **irhs[NGMAX+1]; /* stores rhs at each grid level */
   double **ires[NGMAX+1]; /* stores residual at each grid level */
   double **irho[NGMAX+1]; /* stores rhs during intial solution of FMG */
-  
+
   /*** use bitshift to find the number of grid levels, stored in ng ***/
-  nn=n;                   
+  nn=n;
   while (nn >>= 1) ng++;     /* bitshift right until 0 */
-  
+
   /*** some simple input checks ***/
   if (n != 1+(1L << ng)) nrerror("n-1 must be a power of 2 in mglin.");
   if (ng > NGMAX) nrerror("increase NGMAX in mglin.");
-  
+
   /*restrict solution to next coarsest grid (irho[ng-1])*/
   nn=n/2+1;
   ngrid=ng-1;
-  irho[ngrid]=dmatrix(1,nn,1,nn); 
+  irho[ngrid]=dmatrix(1,nn,1,nn);
   /* coarsens rhs (u at this point) to irho on mesh size nn */
   rstrct(irho[ngrid],u,nn);
-  
+
   /***continue setting up coarser grids down to coarsest level***/
-  while (nn > 3) { 
-    nn=nn/2+1; 
+  while (nn > 3) {
+    nn=nn/2+1;
     irho[--ngrid]=dmatrix(1,nn,1,nn);
-    rstrct(irho[ngrid],irho[ngrid+1],nn); 
+    rstrct(irho[ngrid],irho[ngrid+1],nn);
   }
   /* at this point rhs has been coarsened all the way to the
      coarsest mesh, i.e. 3 x 3 */
@@ -50,44 +50,43 @@ void mglin(double **u, int n, int ncycle){
   free_dmatrix(irho[1],1,nn,1,nn);
   ngrid=ng;                       /* reset ngrid to original size */
 
-  irhs[1]=dmatrix(1,nn,1,nn); 
+  irhs[1]=dmatrix(1,nn,1,nn);
 
   /* 
      take in turn grid 2,3,...ngrid as starting point fine grid
    */
   for (j=2;j<=ngrid;j++) {        /* loop over coarse to fine, starting at level 2 */
-    printf("working on grid: %d\n", j);
-    nn=2*nn-1;                     
+    nn=2*nn-1;
     iu[j]=dmatrix(1,nn,1,nn);     /* setup grids for lhs,rhs, and residual */
-    irhs[j]=dmatrix(1,nn,1,nn);   
-    ires[j]=dmatrix(1,nn,1,nn);   
+    irhs[j]=dmatrix(1,nn,1,nn);
+    ires[j]=dmatrix(1,nn,1,nn);
     /* first guess at solution at level nn is obtained by interpolating
        solution from grid one level coarser (rather than 0 guess)
     */
-    interp(iu[j],iu[j-1],nn);     
+    interp(iu[j],iu[j-1],nn);
     /* irho contains rhs except on fine grid where it is in u */
-    copy(irhs[j],(j != ngrid ? irho[j] : u),nn); 
+    copy(irhs[j],(j != ngrid ? irho[j] : u),nn);
     /* v-cycle at current grid level */
     /* ncycle determines how many vcycles */
-    for (jcycle=1;jcycle<=ncycle;jcycle++) {  
+    for (jcycle=1;jcycle<=ncycle;jcycle++) {
       /* nf is # points on finest grid for current v-sweep */
-      nf=nn;                                  
+      nf=nn;
       for (jj=j;jj>=2;jj--) { /* this says do a full v-cycle from current base grid */
-	/* NPRE g-s sweeps on the finest (relatively) scale */
-	for (jpre=1;jpre<=NPRE;jpre++)  
-	  relax(iu[jj],irhs[jj],nf);
-	resid(ires[jj],iu[jj],irhs[jj],nf); /* compute res on finest scale, store in ires */
-	nf=nf/2+1;                          /* next coarsest scale */
-	rstrct(irhs[jj-1],ires[jj],nf);  /* restrict residuals as rhs of next coarsest scale */
-	fill0(iu[jj-1],nf);                 /* set the initial solution guess to zero */
-      } 
+        /* NPRE g-s sweeps on the finest (relatively) scale */
+        for (jpre=1;jpre<=NPRE;jpre++)
+          relax(iu[jj],irhs[jj],nf);
+        resid(ires[jj],iu[jj],irhs[jj],nf); /* compute res on finest scale, store in ires */
+        nf=nf/2+1;                          /* next coarsest scale */
+        rstrct(irhs[jj-1],ires[jj],nf);  /* restrict residuals as rhs of next coarsest scale */
+        fill0(iu[jj-1],nf);                 /* set the initial solution guess to zero */
+      }
       slvsml(iu[1],irhs[1]);                  /* solve the small problem exactly */
       nf=3;                                   /* fine scale now n=3 */
       for (jj=2;jj<=j;jj++) {                 /* work way back up to current finest grid */
-	nf=2*nf-1;                            /* next finest scale */
-	addint(iu[jj],iu[jj-1],ires[jj],nf);  /* inter error and add to previous solution guess */
-	for (jpost=1;jpost<=NPOST;jpost++)    /* do NPOST g-s sweeps */
-	  relax(iu[jj],irhs[jj],nf);
+        nf=2*nf-1;                            /* next finest scale */
+        addint(iu[jj],iu[jj-1],ires[jj],nf);  /* inter error and add to previous solution guess */
+        for (jpost=1;jpost<=NPOST;jpost++)    /* do NPOST g-s sweeps */
+          relax(iu[jj],irhs[jj],nf);
       }
     }/* end v-cycle loop */
   }  /* end FMGA loop */
@@ -95,8 +94,8 @@ void mglin(double **u, int n, int ncycle){
   copy(u,iu[ngrid],n);              /* copy solution into input array (implicitly returned) */
 
   /*** clean up memory ***/
-  for (nn=n,j=ng;j>=2;j--,nn=nn/2+1) {       
-    free_dmatrix(ires[j],1,nn,1,nn);      
+  for (nn=n,j=ng;j>=2;j--,nn=nn/2+1) {
+    free_dmatrix(ires[j],1,nn,1,nn);
     free_dmatrix(irhs[j],1,nn,1,nn);
     free_dmatrix(iu[j],1,nn,1,nn);
     if (j != ng) free_dmatrix(irho[j],1,nn,1,nn);

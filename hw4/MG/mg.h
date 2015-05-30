@@ -1,8 +1,8 @@
-
 #define NPRE  1
 #define NPOST 1
 #define NGMAX 15
 
+double C;
 void addint(double **uf, double **uc, double **res, int nf);
 void copy(double **aout, double **ain, int n);
 void fill0(double **u, int n);

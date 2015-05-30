@@ -1,3 +1,5 @@
+#include "mg.h"
+
 void slvsml(double **u, double **rhs)
 /* 
    Solution of the model problem on the coarsest grid, where h = 1
@@ -8,5 +10,5 @@ void slvsml(double **u, double **rhs)
   void fill0(double **u, int n);
   double h=0.5;
   fill0(u,3);
-  u[2][2] = -h*h*rhs[2][2]/4.0;
+  u[2][2] = rhs[2][2]/(1+4*C); 
 }
