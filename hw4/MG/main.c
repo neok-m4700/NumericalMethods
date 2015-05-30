@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
         //mglin(x, n, ncycles); //run mg
         //cg(dom, x, n); //run cg
 
-        sor(dom, n, 1);
+        sor(dom, n, 0.9);
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
