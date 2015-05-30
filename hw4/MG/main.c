@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 
         //run mglin to generate guess for cg
         copy(x, dom, n); //guess goes in x
-        //mglin(x, n, ncycles); //run mg
+        mglin(x, n, ncycles); //run mg
         cg(dom, x, n); //run cg
 
         //add source and reset boundaries
