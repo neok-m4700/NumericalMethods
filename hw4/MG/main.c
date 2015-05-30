@@ -79,12 +79,12 @@ int main(int argc, char **argv) {
         //solve Ax = b
 
         //run mglin directly
-        //mglin(dom, n, ncycles); 
+        mglin(dom, n, ncycles); 
 
         //run mglin to generate guess for cg
-        copy(x, dom, n); //guess goes in x
-        mglin(x, n, ncycles); //run mg
-        cg(dom, x, n); //run cg
+        //copy(x, dom, n); //guess goes in x
+        //mglin(x, n, ncycles); //run mg
+        //cg(dom, x, n); //run cg
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
