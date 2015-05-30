@@ -73,18 +73,15 @@ int main(int argc, char **argv) {
 
     for (int k = 0; k < o->N; ++k) { //time stepping
 
-        //calculate B*dom
-        bi_diagonal_prod(C, n,aux, dom);
-
-        //solve Ax = b
-
         //run mglin directly
         //mglin(dom, n, ncycles); 
 
         //run mglin to generate guess for cg
-        copy(x, dom, n); //guess goes in x
-        mglin(x, n, ncycles); //run mg
-        cg(dom, x, n); //run cg
+        //copy(x, dom, n); //guess goes in x
+        //mglin(x, n, ncycles); //run mg
+        //cg(dom, x, n); //run cg
+
+        sor(dom, n, 0.9);
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
@@ -127,10 +124,7 @@ void gaussian(Opt *o, double **b){
 
 
     for(int i = 1; i <= n; ++i) {
-        b[i][1] = 0;
-        b[i][n] = 0;
-        b[1][i] = 0;
-        b[n][i] = 0;
+        b[i][1] = b[i][n] = b[1][i] = b[n][i] = 0;
     }
 
     for (int i = 2; i <= n-1; ++i) {
@@ -157,26 +151,4 @@ void save_output(Opt *o, double **b) {
     fclose(f);
 }
 
-void bi_diagonal_prod(double C, int n, double **aux, double **dom) {
-
-   copy(aux, dom, n);
-
-    //boundary condition = 0
-    for(int i = 1; i <= n; ++i) {
-      dom[i][1] = 0;
-      dom[i][n] = 0;
-      dom[1][i] = 0;
-      dom[n][i] = 0;
-    }
-    for (int i = 2; i <= n-1; ++i) { //iterating over domain
-        for (int j = 2; j <= n-1; ++j) {
-            dom[i][j] = (1.0 - 4*C) * aux[i][j]
-                         +  C * aux[i-1][j]
-                         +  C * aux[i+1][j]
-                         +  C * aux[i][j-1]
-                         +  C * aux[i][j+1];
-        }
-    }
-
-}
 

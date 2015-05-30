@@ -1,6 +1,6 @@
 #include "mg.h"
 
-void resid(double **res, double **u, double **rhs, int n)
+void resid(double **res, double **u, double **xold, int n)
 /*
 Returns minus the residual for the model problem. Input quantities are u[1..n][1..n] and
 rhs[1..n][1..n], while res[1..n][1..n] is returned.
@@ -11,7 +11,7 @@ rhs[1..n][1..n], while res[1..n][1..n] is returned.
   for (j=2;j<n;j++) 
     for (i=2;i<n;i++)
       res[i][j] = 
-         + rhs[i][j]
+         (1-4*C)*xold[i][j] + C*(xold[i-1][j] + xold[i+1][j] + xold[i][j-1] + xold[i][j+1])
          + C*(u[i+1][j]+u[i-1][j]+u[i][j+1]+u[i][j-1])
          - (1+4*C)*u[i][j];
   /* Boundary points are copied.*/

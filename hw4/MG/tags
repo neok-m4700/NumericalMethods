@@ -28,8 +28,7 @@ _NR_UTILS_H_	nrutil.h	/^#define _NR_UTILS_H_$/;"	d
 _Opt_	main.c	/^typedef struct _Opt_ { \/\/Options$/;"	s	file:
 addint	addint.c	/^void addint(double **uf, double **uc, double **res, int nf)$/;"	f
 alpha	main.c	/^    double alpha; \/\/diffusivity$/;"	m	struct:_Opt_	file:
-bi_diagonal_prod	main.c	/^void bi_diagonal_prod(double C, int n, double **aux, double **dom) {$/;"	f
-cg	cg.c	/^void cg(double **b, double **x, int n) {$/;"	f
+cg	cg.c	/^void cg(double **xold, double **x, int n) {$/;"	f
 convert_matrix	nrutil.c	/^float **convert_matrix(a,nrl,nrh,ncl,nch)$/;"	f
 convert_matrix	nrutil.c	/^float **convert_matrix(float *a, long nrl, long nrh, long ncl, long nch)$/;"	f
 copy	mglin.c	/^void copy(double **aout, double **ain, int n)$/;"	f
@@ -82,7 +81,6 @@ iminarg2	nrutil.h	/^static int iminarg1,iminarg2;$/;"	v
 interp	interp.c	/^void interp(double **uf, double **uc, int nf)$/;"	f
 ivector	nrutil.c	/^int *ivector(long nl, long nh)$/;"	f
 ivector	nrutil.c	/^int *ivector(nl,nh)$/;"	f
-linear_comb	cg.c	/^void linear_comb(int n, double **r1, double a, double **r2, double b, double **r3){$/;"	f
 lmaxarg1	nrutil.h	/^static long lmaxarg1,lmaxarg2;$/;"	v
 lmaxarg2	nrutil.h	/^static long lmaxarg1,lmaxarg2;$/;"	v
 lminarg1	nrutil.h	/^static long lminarg1,lminarg2;$/;"	v
@@ -102,12 +100,13 @@ noise	main.c	/^void noise(Opt *o, double **b) {$/;"	f
 nrerror	nrutil.c	/^void nrerror(char error_text[])$/;"	f
 nrerror	nrutil.c	/^void nrerror(error_text)$/;"	f
 r	main.c	/^    double r; \/\/noise scaling$/;"	m	struct:_Opt_	file:
-relax	relax.c	/^void relax(double **u, double **rhs, int n)$/;"	f
-resid	resid.c	/^void resid(double **res, double **u, double **rhs, int n)$/;"	f
+relax	relax.c	/^void relax(double **u, double **xold, int n)$/;"	f
+resid	resid.c	/^void resid(double **res, double **u, double **xold, int n)$/;"	f
 rstrct	rstrc.c	/^void rstrct(double **uc, double **uf, int nc)$/;"	f
 save_output	main.c	/^void save_output(Opt *o, double **b) {$/;"	f
 sig	main.c	/^    double sig; \/\/ Gaussian sigma$/;"	m	struct:_Opt_	file:
 slvsml	slvsml.c	/^void slvsml(double **u, double **rhs)$/;"	f
+sor	sor.c	/^void sor(double **u, double **rhs, int n)$/;"	f
 source	main.c	/^    double source; \/\/source$/;"	m	struct:_Opt_	file:
 sqrarg	nrutil.h	/^static float sqrarg;$/;"	v
 submatrix	nrutil.c	/^float **submatrix(a,oldrl,oldrh,oldcl,oldch,newrl,newcl)$/;"	f
