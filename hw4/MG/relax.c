@@ -1,6 +1,6 @@
 #include "mg.h"
 
-void relax(double **u, double **rhs, int n)
+void relax(double **u, double **xold, int n)
    /*
       Red-black Gauss-Seidel relaxation for model problem. Updates the current value of the solution
       u[1..n][1..n], using the right-hand side function rhs[1..n][1..n].
@@ -18,7 +18,9 @@ void relax(double **u, double **rhs, int n)
       isw=jsw;
       for (j=2;j<n;j++,isw=3-isw)
          /*Gauss-Seidel formula.*/
-         for (i=isw+1;i<n;i+=2) 
-            u[i][j] = (rhs[i][j] + C*(u[i+1][j]+u[i-1][j]+u[i][j+1]+u[i][j-1]))/(1+4*C);
+         for (i=isw+1;i<n;i+=2) {
+            double b = (1-4*C)*xold[i][j] + C*(xold[i-1][j] + xold[i+1][j] + xold[i][j-1] + xold[i][j+1]);
+            u[i][j] = (b + C*(u[i+1][j]+u[i-1][j]+u[i][j+1]+u[i][j-1]))/(1+4*C);
+         }
    }
 }
