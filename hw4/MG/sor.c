@@ -1,24 +1,25 @@
+#include "nrutil.h"
 #include "mg.h"
 
-void sor(double **u, double **rhs, int n)
-   /*
-      Red-black Gauss-Seidel relaxation for model problem. Updates the current value of the solution
-      u[1..n][1..n], using the right-hand side function rhs[1..n][1..n].
-
-      DO NOT USE SOR HERE!
-      */
+void sor(double **xold, int n, double w)
 {
-   int i,ipass,isw,j,jsw=1;
-   /* Red and black sweeps.*/
-   /* jsw and isw toggle between 1 and 2 and
-      determine starting row in each column
-      for given pass 
-      */
-   for (ipass=1;ipass<=2;ipass++,jsw=3-jsw) { 
-      isw=jsw;
-      for (j=2;j<n;j++,isw=3-isw)
-         /*Gauss-Seidel formula.*/
-         for (i=isw+1;i<n;i+=2) 
-            u[i][j] = (rhs[i][j] + C*(u[i+1][j]+u[i-1][j]+u[i][j+1]+u[i][j-1]))/(1+4*C);
-   }
+    double **x = dmatrix(1,n,1,n);
+    copy(x, xold, n);
+    double a = 1/(1 + 4*C);
+    double rs,r,b;
+
+    for (int k = 0; k < 1e6; k++) { 
+        rs = 0;
+        for(int i = 2; i < n ; ++i) 
+            for(int j = 2; j < n; ++j) {
+                x[i][j] = w*a*((1 - 4*C)*xold[i][j]
+                        + C*(xold[i+1][j] + xold[i-1][j] + xold[i][j+1] + xold[i][j-1] + xold[i][j] + xold[i][j]))
+                        + (1-w)*x[i][j] + w*a*C*(x[i+1][j] + x[i-1][j] + x[i][j+1] + x[i][j-1] + x[i][j] + x[i][j]);
+                //resid = b - Ax;
+                b  = ((1 - 4*C)*xold[i][j] + C*(xold[i+1][j] + xold[i-1][j] + xold[i][j+1] + xold[i][j-1] + xold[i][j] + xold[i][j]));
+                r = b - ((1 + 4*C)*x[i][j]    - C*(x[i+1][j] + x[i-1][j] + x[i][j+1] + x[i][j-1] + x[i][j] + x[i][j]));
+            }
+        if (r*r < 1e-10) break;
+    }
+    copy(xold, x, n);
 }

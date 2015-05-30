@@ -77,9 +77,11 @@ int main(int argc, char **argv) {
         //mglin(dom, n, ncycles); 
 
         //run mglin to generate guess for cg
-        copy(x, dom, n); //guess goes in x
-        mglin(x, n, ncycles); //run mg
-        cg(dom, x, n); //run cg
+        //copy(x, dom, n); //guess goes in x
+        //mglin(x, n, ncycles); //run mg
+        //cg(dom, x, n); //run cg
+
+        sor(dom, n, 1);
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
