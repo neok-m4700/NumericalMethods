@@ -20,6 +20,7 @@ typedef struct _Opt_ { //Options
 
 void gaussian(Opt *o, double **b);
 void save_output(Opt *o, double **b);
+void print_output(Opt *o, double **b);
 void noise(Opt *o, double **b);
 
 int main(int argc, char **argv) {
@@ -28,15 +29,15 @@ int main(int argc, char **argv) {
     int ncycles; //for mutligrid
 
     //specify default values
-    o->n = 33;
-    o->N = 100;
-    o->dx = 1.0;
-    o->dt = 7.0;
-    o->alpha = 0.1;
-    o->A = 100;
-    o->sig = 5;
-    o->r = 2;
-    o->source = 0.001;
+    o->n = 9;
+    o->N = 10;
+    o->dx = 5.0/9;
+    o->dt = 0.01;
+    o->alpha = 1.0;
+    o->A = 2.0;
+    o->sig = 1;
+    o->r = 0;
+    o->source = 0.000;
     ncycles = 1;
 
     //get command line values
@@ -67,6 +68,7 @@ int main(int argc, char **argv) {
 
     //add noise
     noise(o, dom);
+    print_output(o, dom);
 
     //caculate C
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
@@ -77,11 +79,13 @@ int main(int argc, char **argv) {
         //mglin(dom, n, ncycles); 
 
         //run mglin to generate guess for cg
-        //copy(x, dom, n); //guess goes in x
+        copy(x, dom, n); //guess goes in x
         //mglin(x, n, ncycles); //run mg
-        //cg(dom, x, n); //run cg
+        cg(dom, x, n); //run cg
+        printf("\n");
+        print_output(o, dom);
 
-        sor(dom, n, 0.9);
+        //sor(dom, n, 0.9);
 
         //add source and reset boundaries
         for (int i = 2; i < n; ++i)
@@ -151,4 +155,15 @@ void save_output(Opt *o, double **b) {
     fclose(f);
 }
 
+void print_output(Opt *o, double **b) {
+   int n = o->n;
+    FILE *f = fopen("out.data", "w");
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            printf("%0.5lf ", b[i][j]);
+        }
+        printf("\n");
+    }
+    fclose(f);
+}
 
