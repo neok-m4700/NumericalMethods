@@ -18,6 +18,8 @@ typedef struct _Opt_ { //Options
     double source; //source
 } Opt;
 
+enum { MG, CG, MG_CG, SOR } methods;
+
 void gaussian(Opt *o, double **b);
 void save_output(Opt *o, double **b);
 void noise(Opt *o, double **b);
@@ -26,6 +28,7 @@ int main(int argc, char **argv) {
     int c;
     Opt *o = malloc(sizeof(struct _Opt_));
     int ncycles; //for mutligrid
+    int method; //which method of the 4
 
     //specify default values
     o->n = 33;
@@ -37,10 +40,11 @@ int main(int argc, char **argv) {
     o->sig = 5;
     o->r = 2;
     o->source = 0.001;
-    ncycles = 1;
+    ncycles = 2;
+    method = 0;
 
     //get command line values
-    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:c:")) != -1)
+    while ((c = getopt (argc, argv, "n:d:N:t:a:A:s:r:S:c:m:")) != -1)
         switch(c)
         {
             case 'n': o->n = atoi(optarg); break;
@@ -53,6 +57,7 @@ int main(int argc, char **argv) {
             case 'r': o->r = atof(optarg); break;
             case 'S': o->source = atof(optarg); break;
             case 'c': ncycles = atof(optarg); break;
+            case 'm': method = atoi(optarg); break;
             default: abort();
         }
 
@@ -71,19 +76,36 @@ int main(int argc, char **argv) {
     //caculate C
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
 
+    switch(method){
+        case(MG): printf("Running MG\n"); break;
+        case(CG): printf("Running CG\n"); break;
+        case(MG_CG): printf("Running MG+CG\n"); break;
+        case(SOR): printf("Running SOR\n"); break;
+    }
+
+
     for (int k = 0; k < o->N; ++k) { //time stepping
 
-        //run mglin directly
-        //mglin(dom, n, ncycles); 
+        switch(method) //run solver
+        {
+            case (MG): 
+                mglin(dom, n, ncycles); 
+                break;
+            case (CG):
+                copy(x, dom, n); //guess goes in x
+                cg(dom, x, n); //run cg
+                break;
+            case (MG_CG):
+                copy(x, dom, n); //guess goes in x
+                mglin(x, n, 1); //run one cycle of mg
+                cg(dom, x, n); //run cg
+                break;
+            case(SOR):
+                sor(dom, n, 0.9);
+        }
 
-        //run mglin to generate guess for cg
-        //copy(x, dom, n); //guess goes in x
-        //mglin(x, n, ncycles); //run mg
-        //cg(dom, x, n); //run cg
 
-        sor(dom, n, 0.9);
-
-        //add source and reset boundaries
+        //add source
         for (int i = 2; i < n; ++i)
             for (int j = 2; j < n; ++j)
                 dom[i][j] += o->source;

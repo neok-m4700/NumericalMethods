@@ -66,7 +66,6 @@ void cg(double **xold, double **x, int n) {
         rsold = rsnew;
     }
 
-    printf("%d\n", k);
     copy(xold, x, n); //copy solution into xold (implicit return)
 
     free_dmatrix(r, 1, n, 1, n);
