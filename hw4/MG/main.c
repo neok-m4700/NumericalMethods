@@ -73,7 +73,6 @@ int main(int argc, char **argv) {
 
     //add noise
     noise(o, dom);
-    print_output(o, dom);
 
     //caculate C
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
@@ -99,8 +98,7 @@ int main(int argc, char **argv) {
                 break;
             case (MG_CG):
                 copy(x, dom, n); //guess goes in x
-                mglin(x, n, 1); //run one cycle of mg
-                cg(dom, x, n); //run cg
+                mgcg(dom, x, n); //run mgcg
                 break;
             case(SOR):
                 sor(dom, n, 0.9);
@@ -185,4 +183,13 @@ void print_output(Opt *o, double **b) {
     }
     fclose(f);
 }
+
+double dotprod(int n, double **r1, double **r2) {
+    double rdot = 0;
+    for (int i = 1; i <= n; ++i)
+        for(int j = 1; j <= n; ++j) 
+            rdot += r1[i][j] * r2[i][j];
+    return rdot;
+}
+
 

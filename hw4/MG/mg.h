@@ -14,4 +14,6 @@ void rstrct(double **uc, double **uf, int nc);
 void slvsml(double **u, double **rhs);
 void mglin(double **xold, int n, int ncycle);
 void cg(double **xold, double **guess, int n);
+void mgcg(double **xold, double **guess, int n);
 void sor(double **xold, int n, double w);
+double dotprod(int n, double **r1, double **r2);

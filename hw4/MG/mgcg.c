@@ -3,9 +3,8 @@
 #include "nrutil.h"
 #include "mg.h"
 
-void cg(double **xold, double **x, int n) {
-    double alpha;
-    double beta;
+void mgcg(double **xold, double **x, int n) {
+    double alpha, beta, pr, pAp, rAp;
     double **r = dmatrix(1,n,1,n);
     double **p = dmatrix(1,n,1,n);
     double **Ap = dmatrix(1,n,1,n);
@@ -18,19 +17,19 @@ void cg(double **xold, double **x, int n) {
             r[i][j] = b - (1+4*C)*x[i][j] + 
                 C*(x[i-1][j] + x[i+1][j] + x[i][j-1] + x[i][j+1]);
         }
+
     //boundaries of r
     for(int i = 1; i <= n; ++i)
         r[i][1] = r[i][n] = r[1][i] = r[n][i] = 0;
 
+    //precondition with mg
+    mglin(r, n, 1); 
     //p = r
     copy(p, r, n);
 
-    double rsold, rsnew;
-    rsold = dotprod(n, r, r);
-
     //main iterative loop of cg
-    int k;
-    for (k = 0; k < n; ++k) {
+    for (int k = 0; k < n; ++k) {
+
         //Ap = A*p
         for(int i = 2; i < n; ++i) 
             for(int j = 2; j < n; ++j) 
@@ -39,8 +38,9 @@ void cg(double **xold, double **x, int n) {
         for(int i = 1; i <= n; ++i)
             Ap[i][1] = Ap[i][n] = Ap[1][i] = Ap[n][i] = 0;
 
-        double pAp = dotprod(n, p, Ap);
-        alpha = rsold / pAp;
+        pr = dotprod(n, p, r);
+        pAp = dotprod(n, p, Ap);
+        alpha = pr / pAp;
 
         for(int i = 2; i < n; ++i) 
             for(int j = 2; j < n; ++j) {
@@ -48,14 +48,18 @@ void cg(double **xold, double **x, int n) {
                 r[i][j] -= alpha*Ap[i][j];
             }
 
-        rsnew = dotprod(n, r, r);
+        double rsnew = dotprod(n, r, r);
         if (rsnew < 1e-10) break;
 
-        beta = rsnew / rsold;
+        //precondition with mg
+        mglin(r, n, 1);
+        rAp = dotprod(n, r, Ap);
+        beta = rAp/pAp;
+
+        //p = r + Bp
         for(int i = 2; i < n; ++i) 
             for(int j = 2; j < n; ++j) 
                 p[i][j] = r[i][j] + beta*p[i][j];
-        rsold = rsnew;
     }
 
     copy(xold, x, n); //copy solution into xold (implicit return)
