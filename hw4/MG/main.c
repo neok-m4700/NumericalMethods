@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
     //add noise
     noise(o, dom);
-    print_output(o, dom);
+    //print_output(o, dom);
 
     //caculate C
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
