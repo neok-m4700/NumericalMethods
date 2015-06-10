@@ -4,6 +4,7 @@
 #include <math.h>
 #include "mg.h"
 #include "nrutil.h"
+#include <omp.h>
 
 
 typedef struct _Opt_ { //Options
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
     Opt *o = malloc(sizeof(struct _Opt_));
     int ncycles; //for mutligrid
     int method; //which method of the 4
+    double time;
 
     //specify default values
     o->n = 33;
@@ -39,7 +41,7 @@ int main(int argc, char **argv) {
     o->alpha = 0.1;
     o->A = 100;
     o->sig = 5;
-    o->r = 2;
+    o->r = 50;
     o->source = 0.001;
     ncycles = 2;
     method = 0;
@@ -78,11 +80,13 @@ int main(int argc, char **argv) {
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
 
     switch(method){
-        case(MG): printf("Running MG\n"); B = C; break;
-        case(CG): printf("Running CG\n"); break;
-        case(MG_CG): printf("Running MG+CG\n"); B = 0; break;
-        case(SOR): printf("Running SOR\n"); break;
+        case(MG): printf("MG"); B = C; break;
+        case(CG): printf("CG"); break;
+        case(MG_CG): printf("MG+CG"); B = 0; break;
+        case(SOR): printf("SOR"); break;
     }
+
+    time = omp_get_wtime();
 
 
     for (int k = 0; k < o->N; ++k) { //time stepping
@@ -119,7 +123,9 @@ int main(int argc, char **argv) {
     free_dmatrix(aux, 1, n, 1, n);
     free_dmatrix(x, 1, n, 1, n);
     free(o);
-    //return
+
+    printf(" %d %lf\n", n, (omp_get_wtime() - time));
+
     return 0;
 }
 
