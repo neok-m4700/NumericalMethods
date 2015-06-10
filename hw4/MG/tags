@@ -5,6 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
 A	main.c	/^    double A; \/\/ Gaussian A$/;"	m	struct:_Opt_	file:
+B	mg.h	/^double B;$/;"	v
 C	mg.h	/^double C;$/;"	v
 CG	main.c	/^enum { MG, CG, MG_CG, SOR } methods;$/;"	e	enum:__anon1	file:
 DMAX	nrutil.h	/^#define DMAX(/;"	d
@@ -44,7 +45,7 @@ dmaxarg1	nrutil.h	/^static double dmaxarg1,dmaxarg2;$/;"	v
 dmaxarg2	nrutil.h	/^static double dmaxarg1,dmaxarg2;$/;"	v
 dminarg1	nrutil.h	/^static double dminarg1,dminarg2;$/;"	v
 dminarg2	nrutil.h	/^static double dminarg1,dminarg2;$/;"	v
-dotprod	cg.c	/^double dotprod(int n, double **r1, double **r2) {$/;"	f
+dotprod	main.c	/^double dotprod(int n, double **r1, double **r2) {$/;"	f
 dsqrarg	nrutil.h	/^static double dsqrarg;$/;"	v
 dt	main.c	/^    double dt; \/\/time step$/;"	m	struct:_Opt_	file:
 dvector	nrutil.c	/^double *dvector(long nl, long nh)$/;"	f
@@ -97,6 +98,7 @@ matrix	nrutil.c	/^float **matrix(nrl,nrh,ncl,nch)$/;"	f
 maxarg1	nrutil.h	/^static float maxarg1,maxarg2;$/;"	v
 maxarg2	nrutil.h	/^static float maxarg1,maxarg2;$/;"	v
 methods	main.c	/^enum { MG, CG, MG_CG, SOR } methods;$/;"	v	typeref:enum:__anon1
+mgcg	mgcg.c	/^void mgcg(double **xold, double **x, int n) {$/;"	f
 mglin	mglin.c	/^void mglin(double **u, int n, int ncycle){$/;"	f
 minarg1	nrutil.h	/^static float minarg1,minarg2;$/;"	v
 minarg2	nrutil.h	/^static float minarg1,minarg2;$/;"	v

@@ -19,7 +19,7 @@ void relax(double **u, double **xold, int n)
       for (j=2;j<n;j++,isw=3-isw)
          /*Gauss-Seidel formula.*/
          for (i=isw+1;i<n;i+=2) {
-            double b = (1-4*C)*xold[i][j] + C*(xold[i-1][j] + xold[i+1][j] + xold[i][j-1] + xold[i][j+1]);
+            double b = (1-4*B)*xold[i][j] + B*(xold[i-1][j] + xold[i+1][j] + xold[i][j-1] + xold[i][j+1]);
             u[i][j] = (b + C*(u[i+1][j]+u[i-1][j]+u[i][j+1]+u[i][j-1]))/(1+4*C);
          }
    }

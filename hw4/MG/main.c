@@ -78,9 +78,9 @@ int main(int argc, char **argv) {
     C = o->alpha * o->dt / (2.0 * o->dx * o->dx);
 
     switch(method){
-        case(MG): printf("Running MG\n"); break;
+        case(MG): printf("Running MG\n"); B = C; break;
         case(CG): printf("Running CG\n"); break;
-        case(MG_CG): printf("Running MG+CG\n"); break;
+        case(MG_CG): printf("Running MG+CG\n"); B = 0; break;
         case(SOR): printf("Running SOR\n"); break;
     }
 

@@ -3,6 +3,7 @@
 #define NGMAX 15
 
 double C;
+double B;
 void bi_diagonal_prod(double C, int n, double **aux, double **dom);
 void addint(double **uf, double **uc, double **res, int nf);
 void copy(double **aout, double **ain, int n);
